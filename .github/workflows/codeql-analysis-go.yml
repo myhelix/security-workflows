@@ -1,13 +1,11 @@
 name: "CodeQL for Go"
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ main ]
-  schedule:
-    - cron: '0 16 * * 1'
+  workflow_call:
+    secrets:
+      go-modules-token:
+        description: 'GitHub PAT to access private Go modules'
+        required: true
 
 jobs:
   analyze:
@@ -44,7 +42,7 @@ jobs:
     # Learn more: https://myhelix.atlassian.net/wiki/spaces/SEC/pages/2622062780/How+to+Set+Up+Code+Scanning+on+a+GitHub+Repository#Using-GitHub-Actions
     - name: Grant private modules access
       run: |
-       git config --global url."https://${{ secrets.GO_MODULES_TOKEN }}:x-oauth-basic@github.com/myhelix".insteadOf "https://github.com/myhelix"
+       git config --global url."https://${{ secrets.go-modules-token }}:x-oauth-basic@github.com/myhelix".insteadOf "https://github.com/myhelix"
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
