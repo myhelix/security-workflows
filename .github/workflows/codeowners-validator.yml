@@ -1,11 +1,7 @@
 name: "Codeowners Validator"
 
 on:
-  workflow_call:
-    secrets:
-      owners-validator-github-secret:
-        description: 'GitHub PAT to check that owner definitions are valid'
-        required: true
+  workflow_call
 
 jobs:
   sanity:
@@ -24,7 +20,7 @@ jobs:
           experimental_checks: "notowned"
 
           # GitHub access token is required only if the `owners` check is enabled
-          github_access_token: "${{ secrets.owners-validator-github-secret }}"
+          github_access_token: "${{ secrets.OWNERS_VALIDATOR_GITHUB_SECRET }}"
 
           # The GitHub base URL for API requests. Defaults to the public GitHub API, but can be set to a domain endpoint to use with GitHub Enterprise.
           # github_base_url: "https://api.github.com/"
