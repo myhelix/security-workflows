@@ -1,4 +1,4 @@
-name: "CodeQL for JavaScript"
+name: "CodeQL for Python"
 
 on: workflow_call
 
