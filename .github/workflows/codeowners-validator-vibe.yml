@@ -1,0 +1,42 @@
+name: "Codeowners Validator (Vibe)"
+
+# Same checks as the standard variant. Vibe repos ship CODEOWNERS with a
+# commented catch-all `# * @<org>/<slug>` so PR reviews stay scoped to
+# explicit per-path rules. We uncomment it in the CI checkout so notowned
+# sees full coverage. Fails if the catch-all is missing entirely.
+
+on:
+  workflow_call:
+    secrets:
+      owners-validator-github-secret:
+        description: 'GitHub PAT to check that owner definitions are valid'
+        required: true
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Uncomment global '* @<org>/<slug>' catch-all
+        run: |
+          codeowners=".github/CODEOWNERS"
+          if [ ! -f "$codeowners" ]; then
+            echo "::error file=$codeowners::CODEOWNERS file is missing"
+            exit 1
+          fi
+          if ! grep -qE '^#?[[:space:]]*\*[[:space:]]+@[^/[:space:]]+/[A-Za-z0-9._-]+' "$codeowners"; then
+            echo "::error file=$codeowners::Missing global catch-all '* @<org>/<slug>' (commented or uncommented)."
+            exit 1
+          fi
+          sed -i 's/^#[[:space:]]*\(\*[[:space:]]\+@\)/\1/' "$codeowners"
+
+      - name: GitHub CODEOWNERS Validator
+        uses: mszostok/codeowners-validator@v0.7.1
+        with:
+          checks: "files,owners,duppatterns,syntax"
+          experimental_checks: "notowned"
+          github_access_token: "${{ secrets.owners-validator-github-secret }}"
+          repository_path: "."
+          check_failure_level: "warning"
+          owner_checker_repository: "${{ github.repository }}"
